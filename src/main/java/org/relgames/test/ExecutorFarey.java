@@ -14,14 +14,6 @@ public class ExecutorFarey {
     private static final int DIVIDE_COUNT = 2;
     private static final int THREAD_COUNT = 1<<DIVIDE_COUNT;
 
-    public static class FareyTask {
-        public final Node<Fraction> leftNode;
-
-        public FareyTask(Node<Fraction> leftNode) {
-            this.leftNode = leftNode;
-        }
-    }
-
     private static final ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
 
     private static List<Fraction> getFareyList() {
