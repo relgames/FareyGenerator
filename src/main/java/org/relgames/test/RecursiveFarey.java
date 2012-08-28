@@ -15,7 +15,7 @@ public class RecursiveFarey {
         if (mediant.getDenominator()>BASE) {
             return Collections.emptyList();
         }
-        List<Fraction> result = new LinkedList<>();
+        List<Fraction> result = new LinkedList<Fraction>();
         result.addAll(getFarey(left, mediant));
         result.add(mediant);
         result.addAll(getFarey(mediant, right));
@@ -23,7 +23,7 @@ public class RecursiveFarey {
     }
 
     public static List<Fraction> getFarey() {
-        List<Fraction> result = new LinkedList<>();
+        List<Fraction> result = new LinkedList<Fraction>();
 
         Fraction left = new Fraction(0, 1);
         Fraction right = new Fraction(1, 1);

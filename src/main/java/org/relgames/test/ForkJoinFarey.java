@@ -32,7 +32,7 @@ public class ForkJoinFarey extends RecursiveTask<List<Fraction>>{
         leftList.fork();
         rightList.fork();
 
-        List<Fraction> result = new LinkedList<>();
+        List<Fraction> result = new LinkedList<Fraction>();
         result.addAll(leftList.join());
         result.add(mediant);
         result.addAll(rightList.join());
@@ -40,7 +40,7 @@ public class ForkJoinFarey extends RecursiveTask<List<Fraction>>{
     }
 
     public static List<Fraction> getFareyList() {
-        List<Fraction> result = new LinkedList<>();
+        List<Fraction> result = new LinkedList<Fraction>();
 
         Fraction left = new Fraction(0, 1);
         Fraction right = new Fraction(1, 1);

@@ -29,8 +29,8 @@ public class ExecutorFarey {
     private static ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
 
     public static List<Fraction> getFareyList() {
-        final Node<Fraction> leftNode = new Node<>(new Fraction(0, 1));
-        leftNode.next = new Node<>(new Fraction(1, 1));
+        final Node<Fraction> leftNode = new Node<Fraction>(new Fraction(0, 1));
+        leftNode.next = new Node<Fraction>(new Fraction(1, 1));
 
         final CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
         for (int i=0; i<DIVIDE_COUNT; i++) {
@@ -46,7 +46,7 @@ public class ExecutorFarey {
                 executor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        Queue<FareyTask> q = new LinkedList<>();
+                        Queue<FareyTask> q = new LinkedList<FareyTask>();
                         q.add(new FareyTask(n, n.next));
 
                         while (q.size()>0) {
@@ -79,7 +79,7 @@ public class ExecutorFarey {
     }
 
     private static List<Fraction> asList(Node<Fraction> firstNode) {
-        List<Fraction> result = new LinkedList<>();
+        List<Fraction> result = new LinkedList<Fraction>();
         Node<Fraction> currentNode = firstNode;
         while (currentNode!=null) {
             result.add(currentNode.o);
@@ -89,7 +89,7 @@ public class ExecutorFarey {
     }
 
     private static List<Node<Fraction>> asNodeList(Node<Fraction> firstNode) {
-        List<Node<Fraction>> result = new LinkedList<>();
+        List<Node<Fraction>> result = new LinkedList<Node<Fraction>>();
         Node<Fraction> currentNode = firstNode;
         while (currentNode!=null) {
             result.add(currentNode);
@@ -105,7 +105,7 @@ public class ExecutorFarey {
             return null;
         }
 
-        Node<Fraction> mediantNode = new Node<>(mediant);
+        Node<Fraction> mediantNode = new Node<Fraction>(mediant);
         leftNode.next = mediantNode;
         mediantNode.next = rightNode;
 
