@@ -29,11 +29,10 @@ public class ForkJoinFarey extends RecursiveTask<List<Fraction>>{
 
         ForkJoinFarey leftList = new ForkJoinFarey(left, mediant);
         ForkJoinFarey rightList = new ForkJoinFarey(mediant, right);
-        leftList.fork();
         rightList.fork();
 
         List<Fraction> result = new LinkedList<Fraction>();
-        result.addAll(leftList.join());
+        result.addAll(leftList.compute());
         result.add(mediant);
         result.addAll(rightList.join());
         return result;
