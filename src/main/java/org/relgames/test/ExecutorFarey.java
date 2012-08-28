@@ -18,25 +18,23 @@ public class ExecutorFarey {
 
     public static class FareyTask {
         public final Node<Fraction> leftNode;
-        public final Node<Fraction> rightNode;
 
-        public FareyTask(Node<Fraction> leftNode, Node<Fraction> rightNode) {
+        public FareyTask(Node<Fraction> leftNode) {
             this.leftNode = leftNode;
-            this.rightNode = rightNode;
         }
     }
 
-    private static ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
+    private static final ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
 
-    public static List<Fraction> getFareyList() {
-        final Node<Fraction> leftNode = new Node<Fraction>(new Fraction(0, 1));
-        leftNode.next = new Node<Fraction>(new Fraction(1, 1));
+    private static List<Fraction> getFareyList() {
+        final Node<Fraction> leftNode = new Node<>(new Fraction(0, 1));
+        leftNode.next = new Node<>(new Fraction(1, 1));
 
         final CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
         for (int i=0; i<DIVIDE_COUNT; i++) {
             for (final Node<Fraction> n: asNodeList(leftNode)) {
                 if (n.next!=null) {
-                    divide(n, n.next);
+                    divide(n);
                 }
             }
         }
@@ -46,15 +44,14 @@ public class ExecutorFarey {
                 executor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        Queue<FareyTask> q = new LinkedList<FareyTask>();
-                        q.add(new FareyTask(n, n.next));
+                        Queue<FareyTask> q = new LinkedList<>();
+                        q.add(new FareyTask(n));
 
                         while (q.size()>0) {
                             FareyTask task = q.remove();
-                            Node<Fraction> mediantNode = divide(task.leftNode, task.rightNode);
-                            if (mediantNode!=null) {
-                                q.add(new FareyTask(task.leftNode, mediantNode));
-                                q.add(new FareyTask(mediantNode, task.rightNode));
+                            if (divide(task.leftNode)) {
+                                q.add(new FareyTask(task.leftNode));
+                                q.add(new FareyTask(task.leftNode.next));
                             }
 
                         }
@@ -78,8 +75,8 @@ public class ExecutorFarey {
         return asList(leftNode);
     }
 
-    private static List<Fraction> asList(Node<Fraction> firstNode) {
-        List<Fraction> result = new LinkedList<Fraction>();
+    public static List<Fraction> asList(Node<Fraction> firstNode) {
+        List<Fraction> result = new LinkedList<>();
         Node<Fraction> currentNode = firstNode;
         while (currentNode!=null) {
             result.add(currentNode.o);
@@ -89,7 +86,7 @@ public class ExecutorFarey {
     }
 
     private static List<Node<Fraction>> asNodeList(Node<Fraction> firstNode) {
-        List<Node<Fraction>> result = new LinkedList<Node<Fraction>>();
+        List<Node<Fraction>> result = new LinkedList<>();
         Node<Fraction> currentNode = firstNode;
         while (currentNode!=null) {
             result.add(currentNode);
@@ -98,22 +95,24 @@ public class ExecutorFarey {
         return result;
     }
 
-    public static Node<Fraction> divide(Node<Fraction> leftNode, Node<Fraction> rightNode) {
+    private static boolean divide(Node<Fraction> leftNode) {
+        Node<Fraction> rightNode = leftNode.next;
+
         Fraction mediant = new Fraction(leftNode.o.getNumerator()+ rightNode.o.getNumerator(),
                 leftNode.o.getDenominator()+ rightNode.o.getDenominator());
         if (mediant.getDenominator()> BASE) {
-            return null;
+            return false;
         }
 
-        Node<Fraction> mediantNode = new Node<Fraction>(mediant);
+        Node<Fraction> mediantNode = new Node<>(mediant);
         leftNode.next = mediantNode;
         mediantNode.next = rightNode;
 
-        return mediantNode;
+        return true;
     }
 
 
-    private final static int BASE = 500;
+    private final static int BASE = 20000;
 
     public static void main(String[] args) {
         long time = System.currentTimeMillis();

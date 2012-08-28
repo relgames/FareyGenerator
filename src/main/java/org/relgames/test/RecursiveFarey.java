@@ -15,15 +15,15 @@ public class RecursiveFarey {
         if (mediant.getDenominator()>BASE) {
             return Collections.emptyList();
         }
-        List<Fraction> result = new LinkedList<Fraction>();
+        List<Fraction> result = new LinkedList<>();
         result.addAll(getFarey(left, mediant));
         result.add(mediant);
         result.addAll(getFarey(mediant, right));
         return result;
     }
 
-    public static List<Fraction> getFarey() {
-        List<Fraction> result = new LinkedList<Fraction>();
+    private static List<Fraction> getFarey() {
+        List<Fraction> result = new LinkedList<>();
 
         Fraction left = new Fraction(0, 1);
         Fraction right = new Fraction(1, 1);

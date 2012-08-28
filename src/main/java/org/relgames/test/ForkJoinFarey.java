@@ -2,60 +2,62 @@ package org.relgames.test;
 
 import org.apache.commons.math3.fraction.Fraction;
 
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.RecursiveTask;
+import java.util.concurrent.RecursiveAction;
 
 /**
  * @author opoleshuk
  */
-public class ForkJoinFarey extends RecursiveTask<List<Fraction>>{
-    private final Fraction left;
-    private final Fraction right;
+public class ForkJoinFarey extends RecursiveAction {
+    private final Node<Fraction> leftNode;
 
-    private ForkJoinFarey(Fraction left, Fraction right) {
-        this.left = left;
-        this.right = right;
+    private ForkJoinFarey(Node<Fraction> leftNode) {
+        this.leftNode = leftNode;
     }
+
 
     @Override
-    protected List<Fraction> compute() {
-        Fraction mediant = new Fraction(left.getNumerator()+right.getNumerator(), left.getDenominator()+right.getDenominator());
+    protected void compute() {
+        Node<Fraction> rightNode = leftNode.next;
+
+        Fraction mediant = new Fraction(leftNode.o.getNumerator()+rightNode.o.getNumerator(),
+                                        leftNode.o.getDenominator()+rightNode.o.getDenominator());
         if (mediant.getDenominator()> BASE) {
-            return Collections.emptyList();
+            return;
         }
 
-        ForkJoinFarey leftList = new ForkJoinFarey(left, mediant);
-        ForkJoinFarey rightList = new ForkJoinFarey(mediant, right);
-        rightList.fork();
+        Node<Fraction> mediantNode = new Node<>(mediant);
+        leftNode.next = mediantNode;
+        mediantNode.next = rightNode;
 
-        List<Fraction> result = new LinkedList<Fraction>();
-        result.addAll(leftList.compute());
-        result.add(mediant);
-        result.addAll(rightList.join());
-        return result;
+        ForkJoinFarey leftTask = new ForkJoinFarey(leftNode);
+        ForkJoinFarey rightTask = new ForkJoinFarey(mediantNode);
+
+        if (mediant.getDenominator()>BASE-500) {
+            leftTask.compute();
+            rightTask.compute();
+        } else {
+            rightTask.fork();
+            leftTask.compute();
+            rightTask.join();
+        }
+
+
     }
 
-    public static List<Fraction> getFareyList() {
-        List<Fraction> result = new LinkedList<Fraction>();
+    private static List<Fraction> getFareyList() {
+        final Node<Fraction> leftNode = new Node<>(new Fraction(0, 1));
+        leftNode.next = new Node<>(new Fraction(1, 1));
 
-        Fraction left = new Fraction(0, 1);
-        Fraction right = new Fraction(1, 1);
-
-        ForkJoinFarey task = new ForkJoinFarey(left, right);
+        ForkJoinFarey task = new ForkJoinFarey(leftNode);
 
         new ForkJoinPool().invoke(task);
 
-        result.add(left);
-        result.addAll(task.join());
-        result.add(right);
-
-        return result;
+        return ExecutorFarey.asList(leftNode);
     }
 
-    private final static int BASE = 500;
+    private final static int BASE = 50000;
 
     public static void main(String[] args) {
         long time = System.currentTimeMillis();
