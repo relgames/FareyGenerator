@@ -2,9 +2,7 @@ package org.relgames.test;
 
 import org.apache.commons.math3.fraction.Fraction;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -44,7 +42,7 @@ public class ExecutorFarey {
                 executor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        Queue<FareyTask> q = new LinkedList<>();
+                        Queue<FareyTask> q = new ArrayDeque<>();
                         q.add(new FareyTask(n));
 
                         while (q.size()>0) {
@@ -76,7 +74,7 @@ public class ExecutorFarey {
     }
 
     public static List<Fraction> asList(Node<Fraction> firstNode) {
-        List<Fraction> result = new LinkedList<>();
+        List<Fraction> result = new ArrayList<>(Node.getCount());
         Node<Fraction> currentNode = firstNode;
         while (currentNode!=null) {
             result.add(currentNode.o);
@@ -98,11 +96,13 @@ public class ExecutorFarey {
     private static boolean divide(Node<Fraction> leftNode) {
         Node<Fraction> rightNode = leftNode.next;
 
-        Fraction mediant = new Fraction(leftNode.o.getNumerator()+ rightNode.o.getNumerator(),
-                leftNode.o.getDenominator()+ rightNode.o.getDenominator());
-        if (mediant.getDenominator()> BASE) {
+        int newDenominator = leftNode.o.getDenominator()+rightNode.o.getDenominator();
+        if (newDenominator>BASE) {
             return false;
         }
+
+        Fraction mediant = new Fraction(leftNode.o.getNumerator()+ rightNode.o.getNumerator(),
+                newDenominator);
 
         Node<Fraction> mediantNode = new Node<>(mediant);
         leftNode.next = mediantNode;
@@ -112,7 +112,7 @@ public class ExecutorFarey {
     }
 
 
-    private final static int BASE = 20000;
+    public final static int BASE = ForkJoinFarey.BASE;
 
     public static void main(String[] args) {
         long time = System.currentTimeMillis();

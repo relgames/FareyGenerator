@@ -21,11 +21,12 @@ public class ForkJoinFarey extends RecursiveAction {
     protected void compute() {
         Node<Fraction> rightNode = leftNode.next;
 
-        Fraction mediant = new Fraction(leftNode.o.getNumerator()+rightNode.o.getNumerator(),
-                                        leftNode.o.getDenominator()+rightNode.o.getDenominator());
-        if (mediant.getDenominator()> BASE) {
+        int newDenominator = leftNode.o.getDenominator()+rightNode.o.getDenominator();
+        if (newDenominator>BASE) {
             return;
         }
+
+        Fraction mediant = new Fraction(leftNode.o.getNumerator()+rightNode.o.getNumerator(), newDenominator);
 
         Node<Fraction> mediantNode = new Node<>(mediant);
         leftNode.next = mediantNode;
@@ -57,7 +58,7 @@ public class ForkJoinFarey extends RecursiveAction {
         return ExecutorFarey.asList(leftNode);
     }
 
-    private final static int BASE = 50000;
+    public final static int BASE = 25000;
 
     public static void main(String[] args) {
         long time = System.currentTimeMillis();
