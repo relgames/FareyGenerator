@@ -42,19 +42,16 @@ public class ExecutorFarey {
                 executor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        Queue<FareyTask> q = new ArrayDeque<>();
-                        q.add(new FareyTask(n));
-
-                        while (q.size()>0) {
-                            FareyTask task = q.remove();
-                            if (divide(task.leftNode)) {
-                                q.add(new FareyTask(task.leftNode));
-                                q.add(new FareyTask(task.leftNode.next));
-                            }
-
-                        }
-
+                        recursiveDivide(n);
                         countDownLatch.countDown();
+                    }
+
+                    private void recursiveDivide(Node<Fraction> leftNode) {
+                        if (divide(leftNode)) {
+                            Node<Fraction> mediant = leftNode.next;
+                            recursiveDivide(leftNode);
+                            recursiveDivide(mediant);
+                        }
                     }
                 });
 
